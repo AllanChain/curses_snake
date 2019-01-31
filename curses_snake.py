@@ -42,6 +42,3 @@ if snake[0][0] in [0, hei] or snake[0][1] in [0,wei] or snake[0] in snake[1:]:
     sleep(0.5)
     curses.endwin()
     quit()
-
-# update the snake
-
