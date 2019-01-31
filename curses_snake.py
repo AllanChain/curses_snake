@@ -26,19 +26,27 @@ food_pos = [int(hei/2), int(wei/2)]
 w.addch(food_pos[0], food_pos[1], '✦',curses.color_pair(1))
 
 # start
-key = ord('d')
-next_key = w.getch()
-if next_key != -1:
-    if key == ord('a') and next_key != ord('d') or key == ord('d') and next_key != ord('a') or key == ord('w') and next_key != ord('s') or key == ord('s') and next_key != ord('w'):
-        key = next_key
+while true:
+    key = ord('d')
+    next_key = w.getch()
+    if next_key != -1:
+        if key == ord('a') and next_key != ord('d') or key == ord('d') and next_key != ord('a') or key == ord('w') and next_key != ord('s') or key == ord('s') and next_key != ord('w'):
+            key = next_key
 
-# death
-if snake[0][0] in [0, hei] or snake[0][1] in [0,wei] or snake[0] in snake[1:]:
-    w.clear()
-    for i in range(0, 2):
-        curses.flash()
-        sleep(0.08)
-    w.addstr(lnt(hei/2), int(wei/2), 'Game Over!', curses.color_pair(2))
-    sleep(0.5)
-    curses.endwin()
-    quit()
+    # death
+    if snake[0][0] in [0, hei] or snake[0][1] in [0,wei] or snake[0] in snake[1:]:
+        w.clear()
+        for i in range(0, 2):
+            curses.flash()
+            sleep(0.08)
+        w.addstr(lnt(hei/2), int(wei/2), 'Game Over!', curses.color_pair(2))
+        sleep(0.5)
+        curses.endwin()
+        quit()
+
+    # update the snake
+    temp_y = snake[0][0]
+    temp_x = snake[0][1]
+    new_head = [temp_y, temp_x]
+    if key == ord('d'):
+
