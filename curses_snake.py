@@ -27,22 +27,25 @@ snake =[[y, x],[y, x-1],[y, x-2]]
 food_pos = [int(hei/2), int(wei/2)]
 w.addch(food_pos[0], food_pos[1], '✦',curses.color_pair(1))
 
+# the initial direction
+key = ord('d')
 # start
+keys = {ord('a'), ord('d'), ord('w'), ord('s')}
 while True:
-    key = ord('d')
     next_key = w.getch()
     if next_key != -1:
-        if key == ord('a') and next_key != ord('d') or key == ord('d') and next_key != ord('a') or key == ord('w') and next_key != ord('s') or key == ord('s') and next_key != ord('w'):
+        if key == ord('a') and next_key in keys and next_key != ord('d') or key == ord('d') and next_key in keys and next_key != ord('a') or key == ord('w') and next_key in keys and next_key != ord('s') or key == ord('s') and next_key in keys and next_key != ord('w'):
             key = next_key
 
     # death
-    if snake[0][0] in [0, hei] or snake[0][1] in [0,wei] or snake[0] in snake[1:]:
-        w.clear()
-        for i in range(0, 2):
+    if snake[0][0] in [0, hei] or snake[0][1] in [0, wei] or snake[0] in snake[1:]:
+        for i in range(0, 4):
             curses.flash()
             sleep(0.08)
-        w.addstr(lnt(hei/2), int(wei/2), 'Game Over!', curses.color_pair(2))
-        sleep(0.5)
+        w.clear()
+        w.addstr(int(hei/2), int(wei/2), 'Game Over!', curses.color_pair(2))
+        w.refresh()
+        sleep(2)
         curses.endwin()
         quit()
 
