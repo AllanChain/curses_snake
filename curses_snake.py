@@ -1,9 +1,11 @@
 import curses
 from time import sleep
+from random import randint
 
 # initialize the screen
 s = curses.initscr()
 curses.curs_set(0)
+curses.noecho()
 curses.start_color()
 
 # initialize the window
@@ -26,7 +28,7 @@ food_pos = [int(hei/2), int(wei/2)]
 w.addch(food_pos[0], food_pos[1], '✦',curses.color_pair(1))
 
 # start
-while true:
+while True:
     key = ord('d')
     next_key = w.getch()
     if next_key != -1:
@@ -44,7 +46,7 @@ while true:
         curses.endwin()
         quit()
 
-    # update the snake
+    # update the snake(turn)
     temp_y = snake[0][0]
     temp_x = snake[0][1]
     new_head = [temp_y, temp_x]
@@ -53,9 +55,22 @@ while true:
     if key == ord('a'):
         new_head[1] -= 1
     if key == ord('w'):
-        new_head[0] += 1
+        new_head[0] -= 1
     if key == ord('s'):
-        new_heed[0] -= 1
+        new_head[0] += 1
     snake.insert(0, new_head)
-
-
+    
+    # eat
+    if snake[0] == food_pos:
+        food_pos = None
+        while food_pos is None:
+            new_food_pos = (randint(1, hei-1),randint(1, wei-1))
+            if new_food_pos not in snake:
+                food_pos = new_food_pos
+        w.addch(food_pos[0], food_pos[1],'✦', curses.color_pair(1))
+    # remove the tail
+    else:
+        tail = snake.pop() 
+        w.addch(tail[0], tail[1], ' ')
+    # move
+    w.addch(snake[0][0], snake[0][1], '@', curses.color_pair(3))
