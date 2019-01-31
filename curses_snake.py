@@ -49,4 +49,13 @@ while true:
     temp_x = snake[0][1]
     new_head = [temp_y, temp_x]
     if key == ord('d'):
+        new_head[1] += 1
+    if key == ord('a'):
+        new_head[1] -= 1
+    if key == ord('w'):
+        new_head[0] += 1
+    if key == ord('s'):
+        new_heed[0] -= 1
+    snake.insert(0, new_head)
+
 
