@@ -14,9 +14,9 @@ w = curses.newwin(hei, wei, 0, 0)
 w.keypad(1)
 w.timeout(100)
 # initialize color_pairs
-curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_WHITE)
-curses.init_pair(2, curses.COLOR_RED, curses.COLOR_WHITE)
-curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_WHITE)
+curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
 # initialize the position of snake
 y = int(hei/2)
@@ -25,8 +25,9 @@ snake =[[y, x],[y, x-1],[y, x-2]]
 
 # initialize the position of food
 food_pos = [int(hei/2), int(wei/2)]
-w.addch(food_pos[0], food_pos[1], '✦',curses.color_pair(1))
-
+w.attron(curses.color_pair(1))
+w.addch(food_pos[0], food_pos[1], '✦')
+w.attroff(curses.color_pair(1))
 # the initial direction
 key = ord('d')
 # start
@@ -38,7 +39,7 @@ while True:
             key = next_key
 
     # death
-    if snake[0][0] in [0, hei] or snake[0][1] in [0, wei] or snake[0] in snake[1:]:
+    if snake[0][0] in [0, hei-1] or snake[0][1] in [0, wei-1] or snake[0] in snake[1:]:
         for i in range(0, 4):
             curses.flash()
             sleep(0.08)
@@ -70,10 +71,14 @@ while True:
             new_food_pos = (randint(1, hei-1),randint(1, wei-1))
             if new_food_pos not in snake:
                 food_pos = new_food_pos
-        w.addch(food_pos[0], food_pos[1],'✦', curses.color_pair(1))
+        w.attron(curses.color_pair(1))
+        w.addch(food_pos[0], food_pos[1],'✦')
+        w.attroff(curses.color_pair(1))
     # remove the tail
     else:
         tail = snake.pop() 
         w.addch(tail[0], tail[1], ' ')
     # move
+    w.attron(curses.color_pair(3))
     w.addch(snake[0][0], snake[0][1], '@', curses.color_pair(3))
+    w.attroff(curses.color_pair(3))
