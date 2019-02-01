@@ -124,5 +124,6 @@ def main():
         w.addch(snake[0][0], snake[0][1], '@', curses.color_pair(3))
         w.attroff(curses.color_pair(3))
 
-init()
-main()
+if __name__ == '__main__':
+    init()
+    main()
