@@ -31,13 +31,21 @@ w.attroff(curses.color_pair(1))
 # the initial direction
 key = ord('d')
 # start
-keys = {ord('a'), ord('d'), ord('w'), ord('s')}
+keys = {ord('a'), ord('d'), ord('w'), ord('s'), ord('r')}
 while True:
     next_key = w.getch()
-    if next_key != -1:
+    if next_key != -1 and next_key != ord('p'):
         if key == ord('a') and next_key in keys and next_key != ord('d') or key == ord('d') and next_key in keys and next_key != ord('a') or key == ord('w') and next_key in keys and next_key != ord('s') or key == ord('s') and next_key in keys and next_key != ord('w'):
             key = next_key
-
+    # pause
+    if next_key == ord('p') and key in keys:
+        pre_key = key
+        key = next_key
+    if key == ord('p') and next_key == ord('r'):
+        key = next_key
+    if key == ord('r'): # resume
+        key = pre_key
+        w.nodelay(1)
     # death
     if snake[0][0] in [0, hei-1] or snake[0][1] in [0, wei-1] or snake[0] in snake[1:]:
         for i in range(0, 4):
@@ -46,7 +54,7 @@ while True:
         w.clear()
         w.addstr(int(hei/2), int(wei/2), 'Game Over!', curses.color_pair(2))
         w.refresh()
-        sleep(2)
+        sleep(1.5)
         curses.endwin()
         quit()
 
@@ -54,30 +62,49 @@ while True:
     temp_y = snake[0][0]
     temp_x = snake[0][1]
     new_head = [temp_y, temp_x]
-    if key == ord('d'):
-        new_head[1] += 1
-    if key == ord('a'):
-        new_head[1] -= 1
-    if key == ord('w'):
-        new_head[0] -= 1
-    if key == ord('s'):
-        new_head[0] += 1
-    snake.insert(0, new_head)
+    if key == ord('p'): # pause
+        w.nodelay(0)
+    #if key == ord('r'):
+       #key = pre_key
+       #w.nodelay(1)
+    else:
+        if key == ord('d'):
+            new_head[1] += 1
+        if key == ord('a'):
+            new_head[1] -= 1
+        if key == ord('w'):
+            new_head[0] -= 1
+        if key == ord('s'):
+            new_head[0] += 1
+        snake.insert(0, new_head)
     
     # eat
     if snake[0] == food_pos:
         food_pos = None
-        while food_pos is None:
+        '''while food_pos is None:
             new_food_pos = (randint(1, hei-1),randint(1, wei-1))
             if new_food_pos not in snake:
                 food_pos = new_food_pos
         w.attron(curses.color_pair(1))
         w.addch(food_pos[0], food_pos[1],'✦')
-        w.attroff(curses.color_pair(1))
+        w.attroff(curses.color_pair(1))'''
+    
     # remove the tail
     else:
         tail = snake.pop() 
         w.addch(tail[0], tail[1], ' ')
+   
+    # spawn new food
+    while food_pos is None:
+        new_food_pos = (randint(1, hei-1),randint(1, wei-1))
+        if new_food_pos not in snake:
+            food_pos = new_food_pos
+            w.addstr(1, 1, str(food_pos)) # debug
+            w.refresh()
+    w.attron(curses.color_pair(1))
+    w.addch(food_pos[0], food_pos[1],'✦')
+    w.attroff(curses.color_pair(1))
+
     # move
     w.attron(curses.color_pair(3))
     w.addch(snake[0][0], snake[0][1], '@', curses.color_pair(3))
