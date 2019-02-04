@@ -16,9 +16,9 @@ def init():
     w.keypad(1)
     w.timeout(100)
     # initialize color_pairs
-    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_RED)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
     # initialize the position of snake
     global snake
@@ -116,12 +116,12 @@ def main():
                 w.addstr(0, 0, str(food_pos)) # debug
                 w.refresh()
         w.attron(curses.color_pair(1))
-        w.addch(food_pos[0], food_pos[1],'✦')
+        w.addch(food_pos[0], food_pos[1],' ')
         w.attroff(curses.color_pair(1))
 
         # move
         w.attron(curses.color_pair(3))
-        w.addch(snake[0][0], snake[0][1], '@', curses.color_pair(3))
+        w.addch(snake[0][0], snake[0][1], ' ', curses.color_pair(3))
         w.attroff(curses.color_pair(3))
 
 if __name__ == '__main__':
