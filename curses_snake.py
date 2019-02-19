@@ -36,16 +36,8 @@ def init():
     global key
     key = ord('d')
     global keys
-    keys = {ord('a'), ord('d'), ord('w'), ord('s'), ord('r')}
+    keys = {ord('a'), ord('d'), ord('w'), ord('s')}
 
-def pause():
-    global pre_key, key
-    pre_key = key
-    w.nodelay(0)
-def resume():
-    global pre_key
-    key =pre_key
-    w.nodelay(1)
 def death():
     for i in range(0, 4):
         curses.flash()
@@ -66,16 +58,20 @@ def main():
     while True:
         next_key = w.getch()
         if next_key != -1:
-            if key == ord('a') and next_key in keys and next_key != ord('d') or key == ord('d') and next_key in keys and next_key != ord('a') or key == ord('w') and next_key in keys and next_key != ord('s') or key == ord('s') and next_key in keys and next_key != ord('w') or key == ord('p') and next_key == ord('r'):
+            if key == ord('a') and next_key in keys and next_key != ord('d') or key == ord('d') and next_key in keys and next_key != ord('a') or key == ord('w') and next_key in keys and next_key != ord('s') or key == ord('s') and next_key in keys and next_key != ord('w'):
                 key = next_key
-            # pause
+                w.addstr(1, 0, 'Current key= %s'%chr((key))) # debug
+            # pause and resume
             if next_key == ord('p') and key in keys:
-                pause()
-            if key == ord('r'): # resume
-                resume()
+                w.addstr(2, int(wei/2), "Pause")
+                while True:
+                    a = w.getch()
+                    if a == ord('r'):
+                        w.addstr(2, int(wei/2), "         ")
+                        break
         # death
         if snake[0][0] in [0, hei-1] or snake[0][1] in [0, wei-1] or snake[0] in snake[1:]:
-           death() 
+            death() 
         # update the snake(turn)
         else:
             temp_y = snake[0][0]
@@ -107,7 +103,7 @@ def main():
         else:
             tail = snake.pop() 
             w.addch(tail[0], tail[1], ' ')
-       
+        w.addstr(2, 0, "Length:%s"%(len(snake))) # debug
         # spawn new food
         while food_pos is None:
             new_food_pos = (randint(1, hei-1),randint(1, wei-1))
