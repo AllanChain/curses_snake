@@ -3,20 +3,36 @@ from time import sleep
 from random import randint
 
 
-TIME_LIMIT = 100
+class TimeBar:
+    def __init__(self, limit, MAX, x):
+        self.LIMIT = 100
+        self.unit = limit / MAX
+        self.head =self.MAX = MAX
+        self.x = x
+        self.count = 0
+        self.refill()
+
+    def reduce(self):
+        self.count += 1
+        if self.count >= self.unit:
+            self.count -= self.unit
+            w.addch(self.head, self.x, ' ')
+            self.head -= 1
+            if self.head == -1:
+                death()
+
+    def refill(self):
+        for y in range(self.MAX):
+            w.addch(y, self.x, ' ', curses.color_pair(1))
+        self.head = self.MAX
+
+
 def draw_block(pos, color=1):
     y, x = pos
     w.attron(curses.color_pair(color))
     w.addch(y, 2*x, ' ')
     w.addch(y, 2*x+1, ' ')
     w.attroff(curses.color_pair(color))
-
-def draw_time(time):
-    time = int(time / TIME_LIMIT * 40)
-    for y in range(time):
-        w.addch(y, 80, '#')
-    for y in range(time,39):
-        w.addch(y, 80, ' ')
 
 def init():
     # initialize the screen
@@ -34,7 +50,7 @@ def init():
     w.timeout(100)
     wei = wei//2
     # initialize color_pairs
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_RED)
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
@@ -74,13 +90,10 @@ def main():
     global keys
     global food_pos
     global snake
-    time = TIME_LIMIT
+    timer = TimeBar(100, hei-2, 2*wei)
     while True:
         next_key = w.getch()
-        time -= 1
-        if time < 0:
-            death()
-        draw_time(time)
+        timer.reduce()
         if next_key in keys and (keys.index(key)-keys.index(next_key)) % 2 != 0:
             key = next_key
             w.addstr(1, 0, 'Current key= %s' % chr((key)))  # debug
@@ -121,7 +134,7 @@ def main():
         w.addstr(2, 0, "Length:%s" % (len(snake)))  # debug
         # spawn new food
         while food_pos is None:
-            time = TIME_LIMIT
+            timer.refill()
             new_food_pos = [randint(1, hei-1), randint(1, wei-1)]
             if new_food_pos not in snake:
                 food_pos = new_food_pos
