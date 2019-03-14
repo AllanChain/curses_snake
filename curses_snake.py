@@ -7,7 +7,7 @@ class TimeBar:
     def __init__(self, limit, MAX, x, delay):
         self.LIMIT = 100
         self.unit = limit / MAX
-        self.head =self.MAX = MAX
+        self.head = self.MAX = MAX
         self.x = x
         self.count = 0
         self.delay = delay
@@ -31,12 +31,26 @@ class TimeBar:
         w.timeout(self.delay)
 
 
+class Food:
+    def __init__(self, s=False):
+        def new_food_pos(): return [randint(1, hei-1), randint(1, wei-1)]
+        self.food_pos = [int(hei/2), int(wei/2)]
+        new_food_pos = new_food_pos()
+        while new_food_pos in snake:
+            new_food_pos = new_food_pos()
+        self.food_pos = new_food_pos
+        w.addstr(0, 0, str(self.food_pos))  # debug
+        w.refresh()
+        draw_block(self.food_pos)
+
+
 def draw_block(pos, color=1):
     y, x = pos
     w.attron(curses.color_pair(color))
     w.addch(y, 2*x, ' ')
     w.addch(y, 2*x+1, ' ')
     w.attroff(curses.color_pair(color))
+
 
 def init():
     # initialize the screen
@@ -49,7 +63,7 @@ def init():
     global hei, wei, w
     curses.resize_term(40, 81)
     hei, wei = s.getmaxyx()
-    wei = wei -1 if wei % 2 == 0 else wei
+    wei = wei - 1 if wei % 2 == 0 else wei
     w = curses.newwin(hei, wei, 0, 0)
     w.keypad(1)
     wei = wei//2
@@ -63,12 +77,6 @@ def init():
     y = int(hei/2)
     x = int(wei/4)
     snake = [[y, x], [y, x-1], [y, x-2]]
-
-    # initialize the position of food
-    global food_pos
-    food_pos = [int(hei/2), int(wei/2)]
-    draw_block(food_pos)
-    # the initial direction
 
 
 def death():
@@ -88,8 +96,8 @@ def death():
 def main():
     global key
     global keys
-    global food_pos
     global snake
+    food = Food()
     timer = TimeBar(100, hei-2, 2*wei, 150)
     while True:
         next_key = w.getch()
@@ -123,8 +131,9 @@ def main():
 
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
-        if snake[0] == food_pos:
-            food_pos = None
+        if snake[0] == food.food_pos:
+            food = Food()
+            timer.refill()
             w.refresh()
 
         # remove the tail
@@ -132,16 +141,6 @@ def main():
             tail = snake.pop()
             draw_block(tail, 0)
         w.addstr(2, 0, "Length:%s" % (len(snake)))  # debug
-        # spawn new food
-        while food_pos is None:
-            timer.refill()
-            new_food_pos = [randint(1, hei-1), randint(1, wei-1)]
-            if new_food_pos not in snake:
-                food_pos = new_food_pos
-                w.addstr(0, 0, str(food_pos))  # debug
-                w.refresh()
-        draw_block(food_pos)
-
         # move
         draw_block(snake[0], 3)
 
@@ -154,4 +153,3 @@ if __name__ == '__main__':
         main()
     finally:
         curses.endwin()
-
