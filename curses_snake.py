@@ -33,15 +33,14 @@ class TimeBar:
 
 class Food:
     def __init__(self, s=False):
-        def new_food_pos(): return [randint(1, hei-1), randint(1, wei-1)]
-        self.food_pos = [int(hei/2), int(wei/2)]
-        new_food_pos = new_food_pos()
+        def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
+        new_food_pos = food_pos()
         while new_food_pos in snake:
-            new_food_pos = new_food_pos()
-        self.food_pos = new_food_pos
-        w.addstr(0, 0, str(self.food_pos))  # debug
+            new_food_pos = food_pos()
+        self.pos = new_food_pos
+        w.addstr(0, 0, str(self.pos))  # debug
         w.refresh()
-        draw_block(self.food_pos)
+        draw_block(self.pos)
 
 
 def draw_block(pos, color=1):
@@ -76,7 +75,7 @@ def init():
     global snake
     y = int(hei/2)
     x = int(wei/4)
-    snake = [[y, x], [y, x-1], [y, x-2]]
+    snake = [(y, x), (y, x-1), (y, x-2)]
 
 
 def death():
@@ -114,7 +113,7 @@ def main():
                     w.addstr(2, int(wei), "         ")
                     break
         # update the snake(turn)
-        new_head = snake[0].copy()
+        new_head = list(snake[0])
 
         if key == ord('d'):
             new_head[1] += 1
@@ -124,14 +123,14 @@ def main():
             new_head[0] -= 1
         if key == ord('s'):
             new_head[0] += 1
-        snake.insert(0, new_head)
+        snake.insert(0, tuple(new_head))
         # death
         if snake[0][0] in (-1, hei) or snake[0][1] in (-1, wei) or snake[0] in snake[1:]:
             death()
 
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
-        if snake[0] == food.food_pos:
+        if snake[0] == food.pos:
             food = Food()
             timer.refill()
             w.refresh()
