@@ -32,7 +32,7 @@ class TimeBar:
 
 
 class Food:
-    def __init__(self, s=False):
+    def __init__(self, snake, s=False):
         def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
         new_food_pos = food_pos()
         while new_food_pos in snake:
@@ -51,7 +51,7 @@ def draw_block(pos, color=1):
     w.attroff(curses.color_pair(color))
 
 
-def init():
+def init_curses():
     # initialize the screen
     s = curses.initscr()
     curses.curs_set(0)
@@ -72,10 +72,6 @@ def init():
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
     # initialize the position of snake
-    global snake
-    y = int(hei/2)
-    x = int(wei/4)
-    snake = [(y, x), (y, x-1), (y, x-2)]
 
 
 def death():
@@ -93,10 +89,12 @@ def death():
 
 
 def main():
-    global key
-    global keys
-    global snake
-    food = Food()
+    key = ord('d')
+    keys = [ord('w'), ord('a'), ord('s'), ord('d')]
+    y = int(hei/2)
+    x = int(wei/4)
+    snake = [(y, x), (y, x-1), (y, x-2)]
+    food = Food(snake)
     timer = TimeBar(100, hei-2, 2*wei, 150)
     while True:
         next_key = w.getch()
@@ -131,7 +129,7 @@ def main():
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
         if snake[0] == food.pos:
-            food = Food()
+            food = Food(snake)
             timer.refill()
             w.refresh()
 
@@ -144,11 +142,9 @@ def main():
         draw_block(snake[0], 3)
 
 
-key = ord('d')
-keys = [ord('w'), ord('a'), ord('s'), ord('d')]
 if __name__ == '__main__':
     try:
-        init()
+        init_curses()
         main()
     finally:
         curses.endwin()
