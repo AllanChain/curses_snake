@@ -57,7 +57,6 @@ def init_curses():
     curses.curs_set(0)
     curses.noecho()
     curses.start_color()
-
     # initialize the window
     global hei, wei, w
     curses.resize_term(40, 81)
@@ -71,8 +70,6 @@ def init_curses():
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
-    # initialize the position of snake
-
 
 def death():
     for i in range(0, 4):
@@ -85,12 +82,12 @@ def death():
     curses.endwin()
     quit()
 
+
 # start
-
-
 def main():
     key = ord('d')
     keys = [ord('w'), ord('a'), ord('s'), ord('d')]
+    # initialize the position of snake
     y = int(hei/2)
     x = int(wei/4)
     snake = [(y, x), (y, x-1), (y, x-2)]
@@ -112,7 +109,6 @@ def main():
                     break
         # update the snake(turn)
         new_head = list(snake[0])
-
         if key == ord('d'):
             new_head[1] += 1
         if key == ord('a'):
@@ -125,14 +121,12 @@ def main():
         # death
         if snake[0][0] in (-1, hei) or snake[0][1] in (-1, wei) or snake[0] in snake[1:]:
             death()
-
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
         if snake[0] == food.pos:
             food = Food(snake)
             timer.refill()
             w.refresh()
-
         # remove the tail
         else:
             tail = snake.pop()
