@@ -1,6 +1,6 @@
 import curses
 from time import sleep
-from random import randint
+from random import randint, random
 
 
 class TimeBar:
@@ -32,15 +32,91 @@ class TimeBar:
 
 
 class Food:
-    def __init__(self, s=False):
-        def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
-        new_food_pos = food_pos()
-        while new_food_pos in snake:
-            new_food_pos = food_pos()
-        self.pos = new_food_pos
+    def __init__(self, pos, s=False):
+        self.pos = pos
         w.addstr(0, 0, str(self.pos))  # debug
         w.refresh()
+        self.draw()
+
+    def __eq__(self, p):
+        return self.pos == p
+    def draw(self):
         draw_block(self.pos)
+
+    def tick(self):
+        return True
+
+    def consume(self):
+        timer.refill()
+
+
+class NormalFood(Food):
+    pass
+
+
+class TimeLimitFood(Food):
+    def __init__(self, pos, time = 80):
+        self.time = time
+        self.blink = 1
+        Food.__init__(self, pos)
+
+    def draw(self):
+        if self.blink:
+            draw_block(self.pos)
+        else:
+            draw_block(self.pos, 0)
+        self.blink = 1 - self.blink
+
+    def tick(self):
+        self.time -= 1
+        if self.time == -1:
+            self.blink = 0
+            self.draw()
+            return False
+        self.draw()
+        return True
+
+
+class FoodMgr:
+    DISTRIBUTION_SERIES = ((0.9, TimeLimitFood),)
+
+    def __init__(self):
+        self.foods = []
+        self.produce()
+
+    def update(self):
+        head = snake[0]
+        for food in self.foods:
+            if not food.tick():
+                self.foods.remove(food)
+                continue
+            if food.pos == head:
+                food.consume()
+                self.foods.remove(food)
+                ratio = 1 - 0.2 * len(self.foods)
+                flag = True
+                break
+        else:
+            ratio = 0.05 - 0.02 * len(self.foods)
+            flag = False
+        if random() < ratio:
+            self.produce()
+        return flag
+
+    def produce(self):
+        def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
+        new_food_pos = food_pos()
+        while new_food_pos in snake or new_food_pos in self.foods:
+            new_food_pos = food_pos()
+        rand_point = random()
+        stop_point = 0
+        for ratio, food_factory in self.DISTRIBUTION_SERIES:
+            stop_point += ratio
+            if rand_point < stop_point:
+                self.foods.append(food_factory(new_food_pos))
+                break
+        else:
+            self.foods.append(NormalFood(new_food_pos))
 
 
 def draw_block(pos, color=1):
@@ -89,11 +165,12 @@ def main():
     keys = [ord('w'), ord('a'), ord('s'), ord('d')]
     # initialize the position of snake
     global snake
+    global timer
     y = int(hei/2)
     x = int(wei/4)
     snake = [(y, x), (y, x-1), (y, x-2)]
-    food = Food()
     timer = TimeBar(100, hei-2, 2*wei, 150)
+    foods = FoodMgr()
     while True:
         next_key = w.getch()
         timer.reduce()
@@ -124,12 +201,13 @@ def main():
             death()
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
-        if snake[0] == food.pos:
-            food = Food()
-            timer.refill()
-            w.refresh()
+        if not foods.update():
+#        if snake[0] == food.pos:
+#            food = Food()
+#            timer.refill()
+#            w.refresh()
         # remove the tail
-        else:
+#        else:
             tail = snake.pop()
             draw_block(tail, 0)
         w.addstr(2, 0, "Length:%s" % (len(snake)))  # debug
