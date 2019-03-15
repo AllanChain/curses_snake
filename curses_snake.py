@@ -32,7 +32,7 @@ class TimeBar:
 
 
 class Food:
-    def __init__(self, snake, s=False):
+    def __init__(self, s=False):
         def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
         new_food_pos = food_pos()
         while new_food_pos in snake:
@@ -88,10 +88,11 @@ def main():
     key = ord('d')
     keys = [ord('w'), ord('a'), ord('s'), ord('d')]
     # initialize the position of snake
+    global snake
     y = int(hei/2)
     x = int(wei/4)
     snake = [(y, x), (y, x-1), (y, x-2)]
-    food = Food(snake)
+    food = Food()
     timer = TimeBar(100, hei-2, 2*wei, 150)
     while True:
         next_key = w.getch()
@@ -124,7 +125,7 @@ def main():
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
         if snake[0] == food.pos:
-            food = Food(snake)
+            food = Food()
             timer.refill()
             w.refresh()
         # remove the tail
