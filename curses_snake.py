@@ -53,8 +53,8 @@ class NormalFood(Food):
 
 
 class TimeLimitFood(Food):
-    def __init__(self, pos, time = 80):
-        self.time = time
+    def __init__(self, pos):
+        self.time = int((2-random()**3)*40)
         self.blink = 1
         Food.__init__(self, pos)
 
