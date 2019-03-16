@@ -6,6 +6,7 @@ from random import randint, random
 class TimeBar:
     def __init__(self, limit, MAX, x, delay):
         self.LIMIT = 100
+        self._pause = False
         self.unit = limit / MAX
         self.head = self.MAX = MAX
         self.x = x
@@ -15,6 +16,8 @@ class TimeBar:
         self.refill()
 
     def reduce(self):
+        if self._pause:
+            return
         self.count += 1
         if self.count >= self.unit:
             self.count -= self.unit
@@ -24,12 +27,15 @@ class TimeBar:
                 death()
 
     def refill(self):
+        self._pause = False
         for y in range(self.MAX):
             w.addch(y, self.x, ' ', curses.color_pair(1))
         self.head = self.MAX
         self.delay = int(self.delay * 0.98)
         w.timeout(self.delay)
 
+    def pause(self):
+        self._pause = True
 
 class Food:
     def __init__(self, pos, s=False):
@@ -71,8 +77,16 @@ class TimeLimitFood(Food):
         return True
 
 
+class PauseFood(Food):
+    def draw(self):
+        draw_block(self.pos, 3)
+
+    def consume(self):
+        timer.pause()
+
 class FoodMgr:
-    DISTRIBUTION_SERIES = ((0.5, TimeLimitFood),)
+    DISTRIBUTION_SERIES = ((0.2, TimeLimitFood),
+                          (0.6, PauseFood))
 
     def __init__(self):
         self.foods = []
