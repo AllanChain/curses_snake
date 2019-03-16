@@ -91,11 +91,11 @@ class FoodMgr:
             if food.pos == head:
                 food.consume()
                 self.foods.remove(food)
-                ratio = 1 - 0.2 * len(self.foods)
+                ratio = 1 - 0.2 * len(self.foods) + 0.02 * len(snake)
                 flag = True
                 break
         else:
-            ratio = 0.05 - 0.02 * len(self.foods)
+            ratio = 0.05 - 0.02 * len(self.foods) + 0.002 * len(snake)
             flag = False
         if random() < ratio:
             self.produce()
