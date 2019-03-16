@@ -38,8 +38,6 @@ class Food:
         w.refresh()
         self.draw()
 
-    def __eq__(self, p):
-        return self.pos == p
     def draw(self):
         draw_block(self.pos)
 
@@ -104,9 +102,10 @@ class FoodMgr:
         return flag
 
     def produce(self):
+        excludes = snake + list(map(lambda f: f.pos, self.foods))
         def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
         new_food_pos = food_pos()
-        while new_food_pos in snake or new_food_pos in self.foods:
+        while new_food_pos in excludes:
             new_food_pos = food_pos()
         rand_point = random()
         stop_point = 0
