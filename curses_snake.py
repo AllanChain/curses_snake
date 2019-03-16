@@ -48,10 +48,6 @@ class Food:
         timer.refill()
 
 
-class NormalFood(Food):
-    pass
-
-
 class TimeLimitFood(Food):
     def __init__(self, pos):
         self.time = int((2-random()**3)*40)
@@ -76,7 +72,7 @@ class TimeLimitFood(Food):
 
 
 class FoodMgr:
-    DISTRIBUTION_SERIES = ((0.9, TimeLimitFood),)
+    DISTRIBUTION_SERIES = ((0.5, TimeLimitFood),)
 
     def __init__(self):
         self.foods = []
@@ -115,7 +111,7 @@ class FoodMgr:
                 self.foods.append(food_factory(new_food_pos))
                 break
         else:
-            self.foods.append(NormalFood(new_food_pos))
+            self.foods.append(Food(new_food_pos))
 
 
 def draw_block(pos, color=1):
