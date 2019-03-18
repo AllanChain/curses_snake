@@ -79,7 +79,7 @@ class TimeLimitFood(Food):
 
 class PauseFood(Food):
     def draw(self):
-        draw_block(self.pos, 3)
+        draw_block(self.pos, 0, style='()')
 
     def consume(self):
         timer.pause()
@@ -128,12 +128,9 @@ class FoodMgr:
             self.foods.append(Food(new_food_pos))
 
 
-def draw_block(pos, color=1):
+def draw_block(pos, color=1, style='  '):
     y, x = pos
-    w.attron(curses.color_pair(color))
-    w.addch(y, 2*x, ' ')
-    w.addch(y, 2*x+1, ' ')
-    w.attroff(curses.color_pair(color))
+    w.addstr(y, 2*x, style, curses.color_pair(color))
 
 
 def init_curses():
@@ -151,7 +148,7 @@ def init_curses():
     w.keypad(1)
     wei = wei//2
     # initialize color_pairs
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
+    curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
