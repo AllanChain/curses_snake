@@ -65,9 +65,9 @@ class TimeLimitFood(Food):
             draw_block(self.pos)
         else:
             draw_block(self.pos, 0)
-        self.blink = 1 - self.blink
 
     def tick(self):
+        self.blink = 1 - self.blink
         self.time -= 1
         if self.time == -1:
             self.blink = 0
@@ -77,9 +77,12 @@ class TimeLimitFood(Food):
         return True
 
 
-class PauseFood(Food):
+class PauseFood(TimeLimitFood):
     def draw(self):
-        draw_block(self.pos, 0, style='()')
+        if self.blink:
+            draw_block(self.pos, 0, style='()')
+        else:
+            draw_block(self.pos, 0)
 
     def consume(self):
         timer.pause()
