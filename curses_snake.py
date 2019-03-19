@@ -1,6 +1,7 @@
 import curses
 from time import sleep
 from random import randint, random
+from sys import platform
 
 
 class TimeBar:
@@ -29,7 +30,7 @@ class TimeBar:
     def refill(self):
         self._pause = False
         for y in range(self.MAX):
-            w.addch(y, self.x, ' ', curses.color_pair(1))
+            w.addstr(y, self.x, ' ', curses.color_pair(1))
         self.head = self.MAX
         self.delay = int(self.delay * 0.98)
         w.timeout(self.delay)
@@ -80,7 +81,7 @@ class TimeLimitFood(Food):
 class PauseFood(TimeLimitFood):
     def draw(self):
         if self.blink:
-            draw_block(self.pos, 0, style='()')
+            draw_block(self.pos, 0, style='[]')
         else:
             draw_block(self.pos, 0)
 
@@ -144,7 +145,8 @@ def init_curses():
     curses.start_color()
     # initialize the window
     global hei, wei, w
-    curses.resize_term(40, 81)
+    if platform == 'win32':
+        curses.resize_term(40, 81)
     hei, wei = s.getmaxyx()
     wei = wei - 1 if wei % 2 == 0 else wei
     w = curses.newwin(hei, wei, 0, 0)
