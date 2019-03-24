@@ -37,6 +37,7 @@ class TimeBar:
     def pause(self):
         self._pause = True
 
+
 class Food:
     def __init__(self, pos, s=False):
         self.pos = pos
@@ -102,6 +103,7 @@ class PauseFood(TimeLimitFood):
     def consume(self):
         timer.pause()
 
+
 class BonusFood(TimeLimitFood):
     def draw(self):
         if self.blink:
@@ -117,11 +119,12 @@ class BonusFood(TimeLimitFood):
             snake.hidden = 10
         timer.refill()
 
+
 class FoodMgr:
     DISTRIBUTION_SERIES = ((0.2, TimeLimitFood),
-                          (0.05, PauseFood),
-                           (0.2, PassFood),
-                           (0.5, BonusFood))
+                           (0.05, PauseFood),
+                           (0.1, PassFood),
+                           (0.05, BonusFood))
 
     def __init__(self):
         self.foods = []
@@ -168,7 +171,8 @@ class Snake:
         x = int(wei/4)
         self._snake = [(y, x), (y, x-1), (y, x-2)]
         #self.keys = [ord('w'), ord('a'), ord('s'), ord('d')]
-        self.keys = [curses.KEY_UP, curses.KEY_LEFT, curses.KEY_DOWN, curses.KEY_RIGHT]
+        self.keys = [curses.KEY_UP, curses.KEY_LEFT,
+                     curses.KEY_DOWN, curses.KEY_RIGHT]
         self.key = self.keys[3]
         self.hidden = 0
 
@@ -201,13 +205,14 @@ class Snake:
         w.addstr(3, 0, str(self._snake[0]))  # debug
         if not foods.update(self._snake[0]):
             draw_block(self._snake.pop(), 0)
-        w.addstr(2, 0, "Length:%s" %len(self._snake))  # debug
+        w.addstr(2, 0, "Length:%s" % len(self._snake))  # debug
 
     def move(self):
         if self.hidden:
             self.hidden -= 1
         else:
             draw_block(self._snake[0], 3)
+
 
 def draw_block(pos, color=1, style='  '):
     y, x = pos
