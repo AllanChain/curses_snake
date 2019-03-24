@@ -167,8 +167,9 @@ class Snake:
         y = int(hei/2)
         x = int(wei/4)
         self._snake = [(y, x), (y, x-1), (y, x-2)]
-        self.key = ord('d')
-        self.keys = [ord('w'), ord('a'), ord('s'), ord('d')]
+        #self.keys = [ord('w'), ord('a'), ord('s'), ord('d')]
+        self.keys = [curses.KEY_UP, curses.KEY_LEFT, curses.KEY_DOWN, curses.KEY_RIGHT]
+        self.key = self.keys[3]
         self.hidden = 0
 
     def body(self):
@@ -182,14 +183,15 @@ class Snake:
             self.key = next_key
             w.addstr(1, 0, 'Current key= %s' % chr(self.key))  # debug
         new_head = list(self._snake[0])
-        if self.key == ord('d'):
-            new_head[1] += 1
-        if self.key == ord('a'):
-            new_head[1] -= 1
-        if self.key == ord('w'):
+        key = self.keys.index(self.key)
+        if key == 0:
             new_head[0] -= 1
-        if self.key == ord('s'):
+        if key == 1:
+            new_head[1] -= 1
+        if key == 2:
             new_head[0] += 1
+        if key == 3:
+            new_head[1] += 1
         self._snake.insert(0, tuple(new_head))
 
     def test_death(self):
