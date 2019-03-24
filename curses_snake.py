@@ -5,12 +5,12 @@ from sys import platform
 
 
 class TimeBar:
-    def __init__(self, limit, MAX, x, delay):
+    def __init__(self, limit, MAX, y, delay):
         self.LIMIT = 100
         self._pause = False
         self.unit = limit / MAX
         self.head = self.MAX = MAX
-        self.x = x
+        self.y = y
         self.count = 0
         self.delay = delay
         w.timeout(delay)
@@ -22,15 +22,14 @@ class TimeBar:
         self.count += 1
         if self.count >= self.unit:
             self.count -= self.unit
-            w.addch(self.head, self.x, ' ')
+            w.addstr(self.y, self.head, '<', curses.color_pair(2))
             self.head -= 1
             if self.head == -1:
                 death()
 
     def refill(self):
         self._pause = False
-        for y in range(self.MAX):
-            w.addstr(y, self.x, ' ', curses.color_pair(1))
+        w.addstr(self.y, 0, ' ' * self.MAX, curses.color_pair(1))
         self.head = self.MAX
         self.delay = int(self.delay * 0.98)
         w.timeout(self.delay)
@@ -58,6 +57,8 @@ class Food:
 class TimeLimitFood(Food):
     def __init__(self, pos):
         self.time = int((2-random()**3)*40)
+        self.count = 0
+        self.INTERVAL = 3
         self.blink = 1
         Food.__init__(self, pos)
 
@@ -68,7 +69,10 @@ class TimeLimitFood(Food):
             draw_block(self.pos, 0)
 
     def tick(self):
-        self.blink = 1 - self.blink
+        self.count += 1
+        if self.count > self.INTERVAL:
+            self.count = 0
+            self.blink = 1 - self.blink
         self.time -= 1
         if self.time == -1:
             self.blink = 0
@@ -146,12 +150,13 @@ def init_curses():
     # initialize the window
     global hei, wei, w
     if platform == 'win32':
-        curses.resize_term(40, 81)
+        curses.resize_term(40, 80)
     hei, wei = s.getmaxyx()
-    wei = wei - 1 if wei % 2 == 0 else wei
+    wei = wei if wei % 2 == 0 else wei-1
     w = curses.newwin(hei, wei, 0, 0)
     w.keypad(1)
     wei = wei//2
+    hei -= 1
     # initialize color_pairs
     curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -181,7 +186,7 @@ def main():
     y = int(hei/2)
     x = int(wei/4)
     snake = [(y, x), (y, x-1), (y, x-2)]
-    timer = TimeBar(100, hei-2, 2*wei, 150)
+    timer = TimeBar(100, wei * 2 - 2, hei, 150)
     foods = FoodMgr()
     while True:
         next_key = w.getch()
