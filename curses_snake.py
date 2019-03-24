@@ -110,11 +110,13 @@ class BonusFood(TimeLimitFood):
             draw_block(self.pos, 4)
 
     def consume(self):
+        global SNOW_FIELD
+        SNOW_FIELD = True
         if self.blink:
             for i in range(10):
                 foods.produce()
         else:
-            pass
+            SNOW_FIELD = True
 
 class FoodMgr:
     DISTRIBUTION_SERIES = ((0.2, TimeLimitFood),
@@ -126,8 +128,7 @@ class FoodMgr:
         self.foods = []
         self.produce()
 
-    def update(self):
-        head = snake[0]
+    def update(self, head):
         for food in self.foods:
             if not food.tick():
                 self.foods.remove(food)
@@ -135,18 +136,18 @@ class FoodMgr:
             if food.pos == head:
                 food.consume()
                 self.foods.remove(food)
-                ratio = 1 - 0.2 * len(self.foods) + 0.02 * len(snake)
+                ratio = 1 - 0.2 * len(self.foods) + 0.02 * snake.length()
                 flag = True
                 break
         else:
-            ratio = 0.05 - 0.02 * len(self.foods) + 0.002 * len(snake)
+            ratio = 0.05 - 0.02 * len(self.foods) + 0.002 * snake.length()
             flag = False
         if random() < ratio:
             self.produce()
         return flag
 
     def produce(self):
-        excludes = snake + list(map(lambda f: f.pos, self.foods))
+        excludes = snake.body() + list(map(lambda f: f.pos, self.foods))
         def food_pos(): return (randint(1, hei-1), randint(1, wei-1))
         new_food_pos = food_pos()
         while new_food_pos in excludes:
@@ -161,6 +162,49 @@ class FoodMgr:
         else:
             self.foods.append(Food(new_food_pos))
 
+
+class Snake:
+    def __init__(self):
+        y = int(hei/2)
+        x = int(wei/4)
+        self._snake = [(y, x), (y, x-1), (y, x-2)]
+        self.key = ord('d')
+        self.keys = [ord('w'), ord('a'), ord('s'), ord('d')]
+        self.SNOW_FIELD = False
+
+    def body(self):
+        return self._snake
+
+    def length(self):
+        return len(self._snake)
+
+    def go(self, next_key):
+        if next_key in self.keys and (self.keys.index(self.key)-self.keys.index(next_key)) % 2 != 0:
+            self.key = next_key
+            w.addstr(1, 0, 'Current key= %s' % chr(self.key))  # debug
+        new_head = list(self._snake[0])
+        if self.key == ord('d'):
+            new_head[1] += 1
+        if self.key == ord('a'):
+            new_head[1] -= 1
+        if self.key == ord('w'):
+            new_head[0] -= 1
+        if self.key == ord('s'):
+            new_head[0] += 1
+        self._snake.insert(0, tuple(new_head))
+
+    def test_death(self):
+        return self._snake[0][0] in (-1, hei) or self._snake[0][1] in (-1, wei) or self._snake[0] in self._snake[1:]
+
+    def bite(self):
+        w.addstr(3, 0, str(self._snake[0]))  # debug
+        if not foods.update(self._snake[0]):
+            draw_block(self._snake.pop(), 0)
+        w.addstr(2, 0, "Length:%s" %len(self._snake))  # debug
+
+    def move(self):
+        if not self.SNOW_FIELD:
+            draw_block(self._snake[0], 3)
 
 def draw_block(pos, color=1, style='  '):
     y, x = pos
@@ -205,52 +249,29 @@ def death():
 
 # start
 def main():
-    key = ord('d')
-    keys = [ord('w'), ord('a'), ord('s'), ord('d')]
     # initialize the position of snake
     global snake
-    global timer, foods
-    y = int(hei/2)
-    x = int(wei/4)
-    snake = [(y, x), (y, x-1), (y, x-2)]
+    global timer, foods, SNOW_FIELD
+    snake = Snake()
     timer = TimeBar(100, wei * 2 - 2, hei, 150)
     foods = FoodMgr()
     while True:
         next_key = w.getch()
         timer.reduce()
-        if next_key in keys and (keys.index(key)-keys.index(next_key)) % 2 != 0:
-            key = next_key
-            w.addstr(1, 0, 'Current key= %s' % chr((key)))  # debug
+        snake.go(next_key)
         # pause and resume
-        if next_key == ord('p') and key in keys:
+        if next_key == ord('p') and snake.key in keys:
             w.addstr(2, int(wei), "Pause")
             while True:
                 a = w.getch()
                 if a == ord('r'):
                     w.addstr(2, int(wei), "         ")
                     break
-        # update the snake(turn)
-        new_head = list(snake[0])
-        if key == ord('d'):
-            new_head[1] += 1
-        if key == ord('a'):
-            new_head[1] -= 1
-        if key == ord('w'):
-            new_head[0] -= 1
-        if key == ord('s'):
-            new_head[0] += 1
-        snake.insert(0, tuple(new_head))
         # death
-        if snake[0][0] in (-1, hei) or snake[0][1] in (-1, wei) or snake[0] in snake[1:]:
+        if snake.test_death():
             death()
-        # eat
-        w.addstr(3, 0, str(snake[0]))  # debug
-        if not foods.update():
-            tail = snake.pop()
-            draw_block(tail, 0)
-        w.addstr(2, 0, "Length:%s" % (len(snake)))  # debug
-        # move
-        draw_block(snake[0], 3)
+        snake.bite()
+        snake.move()
 
 
 if __name__ == '__main__':
