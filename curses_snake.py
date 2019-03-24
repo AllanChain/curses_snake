@@ -191,8 +191,6 @@ class Snake:
         if self.key == ord('s'):
             new_head[0] += 1
         self._snake.insert(0, tuple(new_head))
-        if self.hidden:
-            self.hidden -= 1
 
     def test_death(self):
         return self._snake[0][0] in (-1, hei) or self._snake[0][1] in (-1, wei) or self._snake[0] in self._snake[1:]
@@ -204,7 +202,9 @@ class Snake:
         w.addstr(2, 0, "Length:%s" %len(self._snake))  # debug
 
     def move(self):
-        if not self.hidden:
+        if self.hidden:
+            self.hidden -= 1
+        else:
             draw_block(self._snake[0], 3)
 
 def draw_block(pos, color=1, style='  '):
