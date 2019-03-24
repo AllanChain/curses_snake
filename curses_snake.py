@@ -117,6 +117,7 @@ class BonusFood(TimeLimitFood):
                 foods.produce()
         else:
             SNOW_FIELD = True
+        timer.refill()
 
 class FoodMgr:
     DISTRIBUTION_SERIES = ((0.2, TimeLimitFood),
