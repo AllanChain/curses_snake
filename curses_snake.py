@@ -54,6 +54,14 @@ class Food:
         timer.refill()
 
 
+class PassFood(Food):
+    def draw(self):
+        draw_block(self.pos, 5)
+
+    def consume(self):
+        pass
+
+
 class TimeLimitFood(Food):
     def __init__(self, pos):
         self.time = int((2-random()**3)*40)
@@ -94,7 +102,8 @@ class PauseFood(TimeLimitFood):
 
 class FoodMgr:
     DISTRIBUTION_SERIES = ((0.2, TimeLimitFood),
-                          (0.6, PauseFood))
+                          (0.05, PauseFood),
+                           (0.2, PassFood))
 
     def __init__(self):
         self.foods = []
@@ -162,6 +171,7 @@ def init_curses():
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
     curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_MAGENTA)
+    curses.init_pair(5, curses.COLOR_BLUE, curses.COLOR_YELLOW)
 
 
 def death():
