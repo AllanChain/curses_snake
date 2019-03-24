@@ -246,12 +246,6 @@ def main():
         # eat
         w.addstr(3, 0, str(snake[0]))  # debug
         if not foods.update():
-#        if snake[0] == food.pos:
-#            food = Food()
-#            timer.refill()
-#            w.refresh()
-        # remove the tail
-#        else:
             tail = snake.pop()
             draw_block(tail, 0)
         w.addstr(2, 0, "Length:%s" % (len(snake)))  # debug
