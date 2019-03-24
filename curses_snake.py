@@ -110,13 +110,11 @@ class BonusFood(TimeLimitFood):
             draw_block(self.pos, 4)
 
     def consume(self):
-        global SNOW_FIELD
-        SNOW_FIELD = True
         if self.blink:
             for i in range(10):
                 foods.produce()
         else:
-            SNOW_FIELD = True
+            snake.hidden = 10
         timer.refill()
 
 class FoodMgr:
@@ -171,7 +169,7 @@ class Snake:
         self._snake = [(y, x), (y, x-1), (y, x-2)]
         self.key = ord('d')
         self.keys = [ord('w'), ord('a'), ord('s'), ord('d')]
-        self.SNOW_FIELD = False
+        self.hidden = 0
 
     def body(self):
         return self._snake
@@ -193,6 +191,8 @@ class Snake:
         if self.key == ord('s'):
             new_head[0] += 1
         self._snake.insert(0, tuple(new_head))
+        if self.hidden:
+            self.hidden -= 1
 
     def test_death(self):
         return self._snake[0][0] in (-1, hei) or self._snake[0][1] in (-1, wei) or self._snake[0] in self._snake[1:]
@@ -204,7 +204,7 @@ class Snake:
         w.addstr(2, 0, "Length:%s" %len(self._snake))  # debug
 
     def move(self):
-        if not self.SNOW_FIELD:
+        if not self.hidden:
             draw_block(self._snake[0], 3)
 
 def draw_block(pos, color=1, style='  '):
@@ -252,7 +252,7 @@ def death():
 def main():
     # initialize the position of snake
     global snake
-    global timer, foods, SNOW_FIELD
+    global timer, foods
     snake = Snake()
     timer = TimeBar(100, wei * 2 - 2, hei, 150)
     foods = FoodMgr()
