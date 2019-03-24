@@ -76,6 +76,9 @@ class TimeLimitFood(Food):
         else:
             draw_block(self.pos, 0)
 
+    def wipe(self):
+        draw_block(self.pos, 0)
+
     def tick(self):
         self.count += 1
         if self.count > self.INTERVAL:
@@ -83,8 +86,7 @@ class TimeLimitFood(Food):
             self.blink = 1 - self.blink
         self.time -= 1
         if self.time == -1:
-            self.blink = 0
-            self.draw()
+            self.wipe()
             return False
         self.draw()
         return True
@@ -100,10 +102,25 @@ class PauseFood(TimeLimitFood):
     def consume(self):
         timer.pause()
 
+class BonusFood(TimeLimitFood):
+    def draw(self):
+        if self.blink:
+            draw_block(self.pos, 5)
+        else:
+            draw_block(self.pos, 4)
+
+    def consume(self):
+        if self.blink:
+            for i in range(10):
+                foods.produce()
+        else:
+            pass
+
 class FoodMgr:
     DISTRIBUTION_SERIES = ((0.2, TimeLimitFood),
                           (0.05, PauseFood),
-                           (0.2, PassFood))
+                           (0.2, PassFood),
+                           (0.5, BonusFood))
 
     def __init__(self):
         self.foods = []
@@ -192,7 +209,7 @@ def main():
     keys = [ord('w'), ord('a'), ord('s'), ord('d')]
     # initialize the position of snake
     global snake
-    global timer
+    global timer, foods
     y = int(hei/2)
     x = int(wei/4)
     snake = [(y, x), (y, x-1), (y, x-2)]
