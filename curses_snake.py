@@ -31,8 +31,8 @@ class TimeBar:
         self._pause = False
         w.addstr(self.y, 0, ' ' * self.MAX, curses.color_pair(1))
         self.head = self.MAX
-        self.delay = int(self.delay * 0.98)
-        w.timeout(self.delay)
+        self.delay = self.delay * 0.98
+        w.timeout(int(self.delay))
 
     def pause(self):
         self._pause = True
