@@ -209,6 +209,7 @@ class Snake:
 
     def move(self):
         if self.hidden:
+            draw_block(self._snake[0], 2)
             self.hidden -= 1
         else:
             draw_block(self._snake[0], 3)
@@ -263,6 +264,8 @@ def main():
     snake = Snake()
     timer = TimeBar(100, wei * 2 - 2, hei, 150)
     foods = FoodMgr()
+#    foods.foods.append(BonusFood((hei//2, 22)))
+#    foods.foods.append(Food((hei//2, 24)))
     while True:
         next_key = w.getch()
         timer.reduce()
